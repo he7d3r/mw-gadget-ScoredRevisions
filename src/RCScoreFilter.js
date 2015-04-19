@@ -6,11 +6,11 @@
 ( function ( mw, $ ) {
 	'use strict';
 
-    var minScore = mw.util.getParamValue( 'revertedscore' ),
-		ids = [],
-		$changes = {};
+	var minScore = mw.util.getParamValue( 'revertedscore' ),
+        ids = [],
+        $changes = {};
 
-	function processScores( data ){
+	function processScores( data ) {
 		var i, score;
 		if ( data.error ) {
 			console.warn( data.error );
@@ -34,12 +34,12 @@
 		}
 	}
 
-    function load() {
+	function load() {
 		// This can be the string "0" if the user disabled the preference ([[phab:T54542#555387]])
 		/*jshint eqeqeq:false*/
-    	$( '.mw-changeslist' )
+		$( '.mw-changeslist' )
 			.find( mw.user.options.get( 'usenewrc' ) == 1 ? 'tr' : 'li' )
-			.each( function() {
+			.each( function () {
 				var $row = $( this );
 				$row.find( 'a' ).filter( function () {
 					var id = mw.util.getParamValue( 'diff', $( this ).attr( 'href' ) );
@@ -51,7 +51,7 @@
 					return false;
 				} );
 			} );
-			/*jshint eqeqeq:true*/
+		/*jshint eqeqeq:true*/
 		$.ajax( {
 			url: '//ores-test.wmflabs.org/scores/' + mw.config.get( 'wgDBname' ),
 			data: {
@@ -62,14 +62,14 @@
 			timeout: 10000
 		} )
 		.done( processScores )
-		.fail( function (){
+		.fail( function () {
 			console.warn( 'The request failed.', arguments );
 		} );
-    }
+	}
 
 	if ( $.inArray( mw.config.get( 'wgCanonicalSpecialPageName' ), [ 'Watchlist', 'Recentchanges' ] ) !== -1 &&
         minScore
-    ) {
+	) {
 		$( load );
 	}
 
