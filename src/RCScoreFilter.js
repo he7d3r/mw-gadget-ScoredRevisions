@@ -6,10 +6,9 @@
 ( function ( mw, $ ) {
 	'use strict';
 
-	var minScore = mw.util.getParamValue( 'revertedscore' ),
+	var showScores = mw.util.getParamValue( 'showscores' ),
         ids = [],
         $changes = {};
-
 	function processScores( data ) {
 		var i, score;
 		if ( data.error ) {
@@ -23,14 +22,12 @@
 			} else {
 				score = score.reverted.probability.true;
 			}
-			if ( score > minScore ) {
-				$changes[ ids[i] ].css(
-					'background',
-					'hsla(15, 100%, ' +
-						( 50 * data[ ids[i] ].reverted.probability.true ) +
-						'%, 1)'
-				);
-			}
+			$changes[ ids[i] ].css(
+				'background',
+				'hsla(15, 100%, ' +
+					( 100 * (1 - 0.1 * data[ ids[i] ].reverted.probability.true ) ) +
+					'%, 1)'
+			);
 		}
 	}
 
@@ -68,7 +65,7 @@
 	}
 
 	if ( $.inArray( mw.config.get( 'wgCanonicalSpecialPageName' ), [ 'Watchlist', 'Recentchanges' ] ) !== -1 &&
-        minScore
+        showScores
 	) {
 		$( load );
 	}
