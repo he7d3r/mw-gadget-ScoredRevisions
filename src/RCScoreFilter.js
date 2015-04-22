@@ -20,12 +20,12 @@
 			if ( !score || score.reverted.error ) {
 				continue;
 			} else {
-				score = score.reverted.probability.true;
+				score = score.reverted.probability['true'];
 			}
 			$changes[ ids[i] ].css(
 				'background',
 				'hsla(15, 100%, ' +
-					( 100 * (1 - 0.1 * data[ ids[i] ].reverted.probability.true ) ) +
+					( 100 * (1 - 0.1 * data[ ids[i] ].reverted.probability['true'] ) ) +
 					'%, 1)'
 			);
 		}
