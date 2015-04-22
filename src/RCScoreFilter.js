@@ -50,7 +50,7 @@
 			} );
 		/*jshint eqeqeq:true*/
 		$.ajax( {
-			url: '//ores-test.wmflabs.org/scores/' + mw.config.get( 'wgDBname' ),
+			url: '//ores-test.wmflabs.org/scores/' + mw.config.get( 'wgDBname' ) + '/',
 			data: {
 				models: 'reverted',
 				revids: ids.slice( 0, 50 ).join( '|' )
