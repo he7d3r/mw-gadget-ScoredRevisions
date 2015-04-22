@@ -40,7 +40,7 @@
 				var $row = $( this );
 				$row.find( 'a' ).filter( function () {
 					var id = mw.util.getParamValue( 'diff', $( this ).attr( 'href' ) );
-					if ( id ) {
+					if ( id && /^([1-9]\d*)$/.test( id ) ) {
 						$changes[ id ] = $row;
 						ids.push( id );
 						return true;
