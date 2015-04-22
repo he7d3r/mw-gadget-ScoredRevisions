@@ -6,7 +6,7 @@
 ( function ( mw, $ ) {
 	'use strict';
 
-	var showScores = mw.util.getParamValue( 'showscores' ),
+	var showScores = mw.util.getParamValue( 'showscores' ) !== '0',
         ids = [],
         $changes = {},
 		threshold = 0.5;
