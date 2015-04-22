@@ -8,7 +8,8 @@
 
 	var showScores = mw.util.getParamValue( 'showscores' ),
         ids = [],
-        $changes = {};
+        $changes = {},
+		threshold = 0.5;
 	function processScores( data ) {
 		var i, score;
 		if ( data.error ) {
@@ -22,12 +23,15 @@
 			} else {
 				score = score.reverted.probability['true'];
 			}
+			if ( score < threshold ) {
+				continue;
+			}
 			$changes[ ids[i] ].css(
 				'background',
 				'hsla(15, 100%, ' +
-					( 100 * (1 - 0.1 * data[ ids[i] ].reverted.probability['true'] ) ) +
+					( 100 * (1 - 0.1 * score ) ) +
 					'%, 1)'
-			);
+			).attr( 'title', 'Score: ' + ( 100 * score ).toFixed(2) + ' %' );
 		}
 	}
 
