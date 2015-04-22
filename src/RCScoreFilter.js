@@ -9,7 +9,7 @@
 	var showScores = mw.util.getParamValue( 'showscores' ) !== '0',
         ids = [],
         $changes = {},
-		threshold = 0.5;
+		threshold = 0.7;
 	function processScores( data ) {
 		var i, score;
 		if ( data.error ) {
