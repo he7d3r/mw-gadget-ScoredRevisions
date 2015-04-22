@@ -17,7 +17,7 @@
 		}
 		for ( i = 0; i < ids.length; i++ ) {
 			score = data[ ids[i] ];
-			if ( !score || score.reverted.error ) {
+			if ( !score || score.error || score.reverted.error ) {
 				continue;
 			} else {
 				score = score.reverted.probability['true'];
