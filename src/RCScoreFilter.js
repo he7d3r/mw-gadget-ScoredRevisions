@@ -55,8 +55,7 @@
 				models: 'reverted',
 				revids: ids.slice( 0, 50 ).join( '|' )
 			},
-			dataType: 'jsonp',
-			timeout: 10000
+			dataType: 'jsonp'
 		} )
 		.done( processScores )
 		.fail( function () {
