@@ -9,9 +9,11 @@
 	var showScores = mw.util.getParamValue( 'showscores' ) !== '0',
         ids = [],
         $changes = {},
-		threshold = 0.7;
+		threshold = 0.7,
+		batchSize = 5;
 	function processScores( data ) {
 		var i, score;
+		console.log( data );
 		if ( data.error ) {
 			console.warn( data.error );
 			return;
@@ -36,6 +38,27 @@
 	}
 
 	function load() {
+		var i = 0,
+			scoreBatch = function ( revids ) {
+				$.ajax( {
+					url: '//ores-test.wmflabs.org/scores/' + mw.config.get( 'wgDBname' ) + '/',
+					data: {
+						models: 'reverted',
+						revids: revids.join( '|' )
+					},
+					dataType: 'jsonp'
+				} )
+				.done( function ( data ) {
+					processScores( data );
+					i += batchSize;
+					if ( i < ids.length ) {
+						scoreBatch( ids.slice( i, i + batchSize ) );
+					}
+				} )
+				.fail( function () {
+					console.warn( 'The request failed.', arguments );
+				} );
+			};
 		// This can be the string "0" if the user disabled the preference ([[phab:T54542#555387]])
 		/*jshint eqeqeq:false*/
 		$( '.mw-changeslist' )
@@ -44,6 +67,8 @@
 				var $row = $( this );
 				$row.find( 'a' ).filter( function () {
 					var id = mw.util.getParamValue( 'diff', $( this ).attr( 'href' ) );
+					// FIXME: avoid duplicated ids when using "new recent changes"
+					// (the first row has a diff for many revs)
 					if ( id && /^([1-9]\d*)$/.test( id ) ) {
 						$changes[ id ] = $row;
 						ids.push( id );
@@ -52,19 +77,7 @@
 					return false;
 				} );
 			} );
-		/*jshint eqeqeq:true*/
-		$.ajax( {
-			url: '//ores-test.wmflabs.org/scores/' + mw.config.get( 'wgDBname' ) + '/',
-			data: {
-				models: 'reverted',
-				revids: ids.slice( 0, 50 ).join( '|' )
-			},
-			dataType: 'jsonp'
-		} )
-		.done( processScores )
-		.fail( function () {
-			console.warn( 'The request failed.', arguments );
-		} );
+		scoreBatch( ids.slice( i, i + batchSize ) );
 	}
 
 	if ( $.inArray( mw.config.get( 'wgCanonicalSpecialPageName' ), [ 'Watchlist', 'Recentchanges' ] ) !== -1 &&
