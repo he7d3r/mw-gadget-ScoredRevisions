@@ -13,7 +13,6 @@
 		batchSize = 5;
 	function processScores( data ) {
 		var i, score;
-		console.log( data );
 		if ( data.error ) {
 			console.warn( data.error );
 			return;
@@ -31,9 +30,9 @@
 			$changes[ ids[i] ].css(
 				'background',
 				'hsla(15, 100%, ' +
-					( 100 * (1 - 0.1 * score ) ) +
+					( 50 * (score - 1) / (threshold - 1) + 50 ) +
 					'%, 1)'
-			).attr( 'title', 'Score: ' + ( 100 * score ).toFixed(2) + ' %' );
+			).attr( 'title', 'Score: ' + ( 100 * score ).toFixed(0) + ' %' );
 		}
 	}
 
