@@ -82,7 +82,7 @@
 	if ( $.inArray( mw.config.get( 'wgCanonicalSpecialPageName' ), [ 'Watchlist', 'Recentchanges' ] ) !== -1 &&
         showScores
 	) {
-		$( load );
+		mw.hook( 'wikipage.content' ).add( load );
 	}
 
 }( mediaWiki, jQuery ) );
