@@ -9,7 +9,7 @@
 	var showScores = mw.util.getParamValue( 'showscores' ) !== '0',
         ids = [],
         $changes = {},
-		threshold = 0.7,
+		threshold = mw.config.get( 'RCScoreFilterThreshold', 0.7 ),
 		batchSize = 5;
 	function processScores( data ) {
 		var i, score;
