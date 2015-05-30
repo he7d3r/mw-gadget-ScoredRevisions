@@ -40,7 +40,7 @@
 		var i = 0,
 			scoreBatch = function ( revids ) {
 				$.ajax( {
-					url: '//ores-test.wmflabs.org/scores/' + mw.config.get( 'wgDBname' ) + '/',
+					url: '//ores.wmflabs.org/scores/' + mw.config.get( 'wgDBname' ) + '/',
 					data: {
 						models: 'reverted',
 						revids: revids.join( '|' )
