@@ -1,5 +1,5 @@
 /**
- * Filter the recent changes and watchlist by the score of revisions
+ * Highlight revisions by their scores
  * @author: Helder (https://github.com/he7d3r)
  * @license: CC BY-SA 3.0 <https://creativecommons.org/licenses/by-sa/3.0/>
  */
@@ -11,7 +11,7 @@
 			'wgCanonicalSpecialPageName',
 			'wgDBname',
 			'wgAction',
-			'RCScoreFilterThreshold'
+			'ScoredRevisionsThresholds'
 		] ),
 		enabledOnCurrentPage = showScores && (
 				$.inArray( conf.wgCanonicalSpecialPageName, [ 'Watchlist', 'Recentchanges' ] ) !== -1 ||
@@ -19,10 +19,10 @@
 			),
         ids = [],
         changes = {},
-		threshold = conf.RCScoreFilterThreshold || 0.7,
+		thresholds = conf.ScoredRevisionsThresholds || [ 75, 85, 95 ],
 		batchSize = 5;
 	function processScores( data ) {
-		var i, score;
+		var i, j, score, className;
 		if ( data.error ) {
 			console.warn( data.error );
 			return;
@@ -34,15 +34,18 @@
 			} else {
 				score = score.reverted.probability['true'];
 			}
-			if ( score < threshold ) {
-				continue;
+			// Add classes 'scored-revisions-90', 'scored-revisions-80', ...
+			// so that users can customize the style (icons, colors, etc)
+			for ( j = thresholds.length-1; j >= 0; j-- ) {
+				if ( score * 100 >= thresholds[j] ) {
+					console.log( j, score * 100, thresholds[j] )
+					className = 'sr-revert-' + thresholds[j];
+					changes[ ids[i] ]
+						.addClass( className )
+						.attr( 'title', 'Revert score: ' + ( 100 * score ).toFixed(0) + ' %' );
+					break;
+				}
 			}
-			changes[ ids[i] ].css(
-				'background',
-				'hsla(15, 100%, ' +
-					( 50 * (score - 1) / (threshold - 1) + 50 ) +
-					'%, 1)'
-			).attr( 'title', 'Score: ' + ( 100 * score ).toFixed(0) + ' %' );
 		}
 	}
 
@@ -99,6 +102,11 @@
 					console.warn( 'The request failed.', arguments );
 				} );
 			};
+		mw.util.addCSS( [
+			'#mw-content-text .sr-revert-95 { border-left: 3px solid #D11D13; }', // red
+			'#mw-content-text .sr-revert-85 { border-left: 3px solid #FF5D00; }', // orange
+			'#mw-content-text .sr-revert-75 { border-left: 3px solid #FFB50D; }', // yellow
+		].join( '\n' ) );
 		ids = getRevIdsFromCurrentPage();
 		scoreBatch( ids.slice( i, i + batchSize ) );
 	}
