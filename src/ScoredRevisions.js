@@ -38,7 +38,6 @@
 			// so that users can customize the style (icons, colors, etc)
 			for ( j = thresholds.length-1; j >= 0; j-- ) {
 				if ( score * 100 >= thresholds[j] ) {
-					console.log( j, score * 100, thresholds[j] )
 					className = 'sr-revert-' + thresholds[j];
 					changes[ ids[i] ]
 						.addClass( className )
