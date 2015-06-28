@@ -7,6 +7,7 @@
 	'use strict';
 
 	var showScores = mw.util.getParamValue( 'showscores' ) !== '0',
+		model = 'reverted',
 		conf = mw.config.get( [
 			'wgCanonicalSpecialPageName',
 			'wgDBname',
@@ -14,60 +15,77 @@
 			'ScoredRevisionsThresholds'
 		] ),
 		enabledOnCurrentPage = showScores && (
-				$.inArray( conf.wgCanonicalSpecialPageName, [ 'Watchlist', 'Recentchanges' ] ) !== -1 ||
+				$.inArray( conf.wgCanonicalSpecialPageName, [
+					'Watchlist',
+					'Recentchanges',
+					'Contributions'
+				] ) !== -1 ||
 				conf.wgAction === 'history'
 			),
         ids = [],
         changes = {},
-		thresholds = conf.ScoredRevisionsThresholds || [ 75, 85, 95 ],
+		thresholds = conf.ScoredRevisionsThresholds ||
+			{
+				low: 0.8,
+				medium: 0.87,
+				high: 0.94
+			},
 		batchSize = 5;
 	function processScores( data ) {
-		var i, j, score, className;
+		var i, score, className;
 		if ( data.error ) {
-			console.warn( data.error );
+			mw.log.error( data.error );
 			return;
 		}
 		for ( i = 0; i < ids.length; i++ ) {
 			score = data[ ids[i] ];
-			if ( !score || score.error || score.reverted.error ) {
+			if ( !score || score.error || score[ model ].error ) {
 				continue;
 			} else {
-				score = score.reverted.probability['true'];
+				score = score[ model ].probability['true'];
 			}
-			// Add classes 'scored-revisions-90', 'scored-revisions-80', ...
-			// so that users can customize the style (icons, colors, etc)
-			for ( j = thresholds.length-1; j >= 0; j-- ) {
-				if ( score * 100 >= thresholds[j] ) {
-					className = 'sr-revert-' + thresholds[j];
-					changes[ ids[i] ]
-						.addClass( className )
-						.attr( 'title', 'Revert score: ' + ( 100 * score ).toFixed(0) + ' %' );
-					break;
-				}
-			}
+			// Allow users to customize the style (colors, icons, hide, etc) using classes
+			// 'sr-revert-high', 'sr-revert-medium', 'sr-revert-low' and 'sr-revert-none'
+			className = score >= thresholds.high ?
+				'sr-revert-high' :
+				score >= thresholds.medium ?
+					'sr-revert-medium' :
+					score >= thresholds.low ?
+						'sr-revert-low' :
+						'sr-revert-none';
+			changes[ ids[i] ]
+				.addClass( className )
+				.attr( 'title', 'Revert score: ' + ( 100 * score ).toFixed(0) + ' %' );
 		}
 	}
 
 	function getRevIdsFromCurrentPage() {
 		var ids = {},
+			isChangesList = conf.wgCanonicalSpecialPageName === 'Watchlist' ||
+				conf.wgCanonicalSpecialPageName === 'Recentchanges',
 			// This "usenewrc" can be the string "0" if the user disabled the preference ([[phab:T54542#555387]])
 			/*jshint eqeqeq:false*/
-			container = $.inArray( conf.wgCanonicalSpecialPageName, [ 'Watchlist', 'Recentchanges' ] ) !== -1 ?
+			container = isChangesList ?
 				'.mw-changeslist' :
-				'#pagehistory',
-			rowElement = mw.user.options.get( 'usenewrc' ) != 1 ||
-        conf.wgAction === 'history' ?
-				'li' :
-				'tr';
+				conf.wgCanonicalSpecialPageName === 'Contributions' ?
+					'.mw-contributions-list':
+					'#pagehistory',
+			rowElement = mw.user.options.get( 'usenewrc' ) == 1 && isChangesList ?
+				'tr':
+				'li' ;
 		$( container )
 			.find( rowElement )
 			.each( function () {
 				var $row = $( this );
 				$row.find( 'a' )
 					.filter( function () {
-						var id = mw.util.getParamValue( 'diff', $( this ).attr( 'href' ) );
+						var href = $( this ).attr( 'href' ),
+							id = mw.util.getParamValue( 'diff', href );
 						// FIXME: avoid duplicated ids when using "new recent changes"
 						// (the first row has a diff for many revs)
+						if ( id === 'prev' ) {
+							id = mw.util.getParamValue( 'oldid', href );
+						}
 						if ( id && /^([1-9]\d*)$/.test( id ) ) {
 							changes[ id ] = $row;
 							ids[ id ] = true;
@@ -79,13 +97,31 @@
 		return Object.keys( ids );
 	}
 
+	function getAvailableModels() {
+		var dfd = $.Deferred();
+		$.ajax( {
+			url: '//ores.wmflabs.org/scores/' + conf.wgDBname + '/',
+			dataType: 'jsonp'
+		} )
+		.done( function ( data ) {
+			if ( data.error ) {
+				mw.log.error( data.error );
+				dfd.reject();
+				return;
+			}
+			dfd.resolve( data.models || [] );
+		} )
+		.fail( dfd.reject );
+		return dfd.promise();
+	}
+
 	function load() {
 		var i = 0,
-			scoreBatch = function ( revids ) {
+			scoreBatch = function ( revids, model ) {
 				$.ajax( {
 					url: '//ores.wmflabs.org/scores/' + conf.wgDBname + '/',
 					data: {
-						models: 'reverted',
+						models: model,
 						revids: revids.join( '|' )
 					},
 					dataType: 'jsonp'
@@ -94,20 +130,31 @@
 					processScores( data );
 					i += batchSize;
 					if ( i < ids.length ) {
-						scoreBatch( ids.slice( i, i + batchSize ) );
+						scoreBatch( ids.slice( i, i + batchSize ), model );
 					}
 				} )
 				.fail( function () {
-					console.warn( 'The request failed.', arguments );
+					mw.log.error( 'The request failed.', arguments );
 				} );
 			};
-		mw.util.addCSS( [
-			'#mw-content-text .sr-revert-95 { background: #f4908a; }',
-			'#mw-content-text .sr-revert-85 { background: #ffbe99; }',
-			'#mw-content-text .sr-revert-75 { background: #ffe099; }',
-		].join( '\n' ) );
-		ids = getRevIdsFromCurrentPage();
-		scoreBatch( ids.slice( i, i + batchSize ) );
+		mw.loader.load( '//meta.wikimedia.org/w/index.php?title=User:He7d3r/Tools/ScoredRevisions.css&action=raw&ctype=text/css', 'text/css' );
+		getAvailableModels()
+		.done( function ( models ) {
+			if ( $.inArray( model,  models ) === -1 ) {
+				mw.log.warn(
+					'ORES does not have a "' + model + '" model for this wiki.\n' +
+					'More information at https://meta.wikimedia.org/wiki/ORES'
+				);
+				return;
+			}
+			ids = getRevIdsFromCurrentPage();
+			if ( ids.length ) {
+				scoreBatch( ids.slice( i, i + batchSize ), model );
+			}
+		} )
+		.fail( function ( data ) {
+				mw.log.error( data );
+		} );
 	}
 
 	if ( enabledOnCurrentPage ) {
