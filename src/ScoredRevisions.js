@@ -102,9 +102,9 @@
 				} );
 			};
 		mw.util.addCSS( [
-			'#mw-content-text .sr-revert-95 { border-left: 3px solid #D11D13; }', // red
-			'#mw-content-text .sr-revert-85 { border-left: 3px solid #FF5D00; }', // orange
-			'#mw-content-text .sr-revert-75 { border-left: 3px solid #FFB50D; }', // yellow
+			'#mw-content-text .sr-revert-95 { background: #f4908a; }',
+			'#mw-content-text .sr-revert-85 { background: #ffbe99; }',
+			'#mw-content-text .sr-revert-75 { background: #ffe099; }',
 		].join( '\n' ) );
 		ids = getRevIdsFromCurrentPage();
 		scoreBatch( ids.slice( i, i + batchSize ) );
