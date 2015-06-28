@@ -7,9 +7,19 @@
 	'use strict';
 
 	var showScores = mw.util.getParamValue( 'showscores' ) !== '0',
+		conf = mw.config.get( [
+			'wgCanonicalSpecialPageName',
+			'wgDBname',
+			'wgAction',
+			'RCScoreFilterThreshold'
+		] ),
+		enabledOnCurrentPage = showScores && (
+				$.inArray( conf.wgCanonicalSpecialPageName, [ 'Watchlist', 'Recentchanges' ] ) !== -1 ||
+				conf.wgAction === 'history'
+			),
         ids = [],
-        $changes = {},
-		threshold = mw.config.get( 'RCScoreFilterThreshold', 0.7 ),
+        changes = {},
+		threshold = conf.RCScoreFilterThreshold || 0.7,
 		batchSize = 5;
 	function processScores( data ) {
 		var i, score;
@@ -27,7 +37,7 @@
 			if ( score < threshold ) {
 				continue;
 			}
-			$changes[ ids[i] ].css(
+			changes[ ids[i] ].css(
 				'background',
 				'hsla(15, 100%, ' +
 					( 50 * (score - 1) / (threshold - 1) + 50 ) +
@@ -36,11 +46,42 @@
 		}
 	}
 
+	function getRevIdsFromCurrentPage() {
+		var ids = {},
+			// This "usenewrc" can be the string "0" if the user disabled the preference ([[phab:T54542#555387]])
+			/*jshint eqeqeq:false*/
+			container = $.inArray( conf.wgCanonicalSpecialPageName, [ 'Watchlist', 'Recentchanges' ] ) !== -1 ?
+				'.mw-changeslist' :
+				'#pagehistory',
+			rowElement = mw.user.options.get( 'usenewrc' ) != 1 ||
+        conf.wgAction === 'history' ?
+				'li' :
+				'tr';
+		$( container )
+			.find( rowElement )
+			.each( function () {
+				var $row = $( this );
+				$row.find( 'a' )
+					.filter( function () {
+						var id = mw.util.getParamValue( 'diff', $( this ).attr( 'href' ) );
+						// FIXME: avoid duplicated ids when using "new recent changes"
+						// (the first row has a diff for many revs)
+						if ( id && /^([1-9]\d*)$/.test( id ) ) {
+							changes[ id ] = $row;
+							ids[ id ] = true;
+							return true;
+						}
+						return false;
+					} );
+			} );
+		return Object.keys( ids );
+	}
+
 	function load() {
 		var i = 0,
 			scoreBatch = function ( revids ) {
 				$.ajax( {
-					url: '//ores.wmflabs.org/scores/' + mw.config.get( 'wgDBname' ) + '/',
+					url: '//ores.wmflabs.org/scores/' + conf.wgDBname + '/',
 					data: {
 						models: 'reverted',
 						revids: revids.join( '|' )
@@ -58,30 +99,11 @@
 					console.warn( 'The request failed.', arguments );
 				} );
 			};
-		// This can be the string "0" if the user disabled the preference ([[phab:T54542#555387]])
-		/*jshint eqeqeq:false*/
-		$( '.mw-changeslist' )
-			.find( mw.user.options.get( 'usenewrc' ) == 1 ? 'tr' : 'li' )
-			.each( function () {
-				var $row = $( this );
-				$row.find( 'a' ).filter( function () {
-					var id = mw.util.getParamValue( 'diff', $( this ).attr( 'href' ) );
-					// FIXME: avoid duplicated ids when using "new recent changes"
-					// (the first row has a diff for many revs)
-					if ( id && /^([1-9]\d*)$/.test( id ) ) {
-						$changes[ id ] = $row;
-						ids.push( id );
-						return true;
-					}
-					return false;
-				} );
-			} );
+		ids = getRevIdsFromCurrentPage();
 		scoreBatch( ids.slice( i, i + batchSize ) );
 	}
 
-	if ( $.inArray( mw.config.get( 'wgCanonicalSpecialPageName' ), [ 'Watchlist', 'Recentchanges' ] ) !== -1 &&
-        showScores
-	) {
+	if ( enabledOnCurrentPage ) {
 		mw.hook( 'wikipage.content' ).add( load );
 	}
 
