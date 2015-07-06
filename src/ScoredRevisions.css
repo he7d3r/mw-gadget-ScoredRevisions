@@ -1,9 +1,18 @@
-#mw-content-text .sr-revert-high {
+#pagehistory li.sr-revert-high,
+.mw-contributions-list li.sr-revert-high,
+.mw-changeslist li.sr-revert-high,
+.mw-changeslist tr.sr-revert-high {
     background: #f4908a;
 }
-#mw-content-text .sr-revert-medium {
+#pagehistory li.sr-revert-medium,
+.mw-contributions-list li.sr-revert-medium,
+.mw-changeslist li.sr-revert-medium,
+.mw-changeslist tr.sr-revert-medium {
     background: #ffbe99;
 }
-#mw-content-text .sr-revert-low {
+#pagehistory li.sr-revert-low,
+.mw-contributions-list li.sr-revert-low,
+.mw-changeslist li.sr-revert-low,
+.mw-changeslist tr.sr-revert-low {
     background: #ffe099;
 }
