@@ -60,7 +60,9 @@
 	}
 
 	function getRevIdsFromCurrentPage() {
-		var ids = {},
+		var dfd = $.Deferred(),
+			ids = {},
+			pageids = {},
 			isChangesList = conf.wgCanonicalSpecialPageName === 'Watchlist' ||
 				conf.wgCanonicalSpecialPageName === 'Recentchanges',
 			// This "usenewrc" can be the string "0" if the user disabled the preference ([[phab:T54542#555387]])
@@ -76,25 +78,58 @@
 		$( container )
 			.find( rowElement )
 			.each( function () {
-				var $row = $( this );
+				var $row = $( this ),
+					id, pageid;
+				if ( $row.hasClass( 'wikibase-edit' ) ) {
+					// Skip external edits from Wikidata
+					return false;
+				}
 				$row.find( 'a' )
-					.filter( function () {
-						var href = $( this ).attr( 'href' ),
-							id = mw.util.getParamValue( 'diff', href );
-						// FIXME: avoid duplicated ids when using "new recent changes"
-						// (the first row has a diff for many revs)
+					.each( function () {
+						var href = $( this ).attr( 'href' );
+						id = mw.util.getParamValue( 'diff', href );
 						if ( id === 'prev' ) {
 							id = mw.util.getParamValue( 'oldid', href );
 						}
 						if ( id && /^([1-9]\d*)$/.test( id ) ) {
-							changes[ id ] = $row;
-							ids[ id ] = true;
-							return true;
+							// Found a revid, stop
+							return false;
+						} else if ( !pageid ) {
+							pageid = mw.util.getParamValue( 'curid', href );
 						}
-						return false;
 					} );
+				// use id or pageid
+				if ( id ) {
+					changes[ id ] = $row;
+					ids[ id ] = true;
+				} else if ( pageid ) {
+					pageids[ pageid ] = $row;
+				}
 			} );
-		return Object.keys( ids );
+		if ( $.isEmptyObject( pageids ) ) {
+			dfd.resolve( Object.keys( ids ) );
+		} else {
+			$.getJSON( mw.util.wikiScript( 'api' ), {
+				format: 'json',
+				action: 'query',
+				prop: 'revisions',
+				rvprop: 'ids',
+				pageids: Object.keys( pageids ).join( '|' )
+			} )
+			.done( function ( data ) {
+				if ( data && data.query && data.query.pages ) {
+					$.each( data.query.pages, function( pageid, page ) {
+						var id = page.revisions[0].revid;
+						changes[ id ] = pageids[ pageid ];
+						ids[ id ] = true;
+					} );
+				}
+			} )
+			.always( function () {
+				dfd.resolve( Object.keys( ids ) );
+			} );
+		}
+		return dfd.promise();
 	}
 
 	function getAvailableModels() {
@@ -147,10 +182,13 @@
 				);
 				return;
 			}
-			ids = getRevIdsFromCurrentPage();
-			if ( ids.length ) {
-				scoreBatch( ids.slice( i, i + batchSize ), model );
-			}
+			getRevIdsFromCurrentPage()
+			.done( function ( idsFromPage ){
+				ids = idsFromPage;
+				if ( ids.length ) {
+					scoreBatch( ids.slice( i, i + batchSize ), model );
+				}
+			} );
 		} )
 		.fail( function ( data ) {
 				mw.log.error( data );
