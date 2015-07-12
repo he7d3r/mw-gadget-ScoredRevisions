@@ -30,7 +30,7 @@
 				medium: 0.87,
 				high: 0.94
 			},
-		batchSize = 5;
+		batchSize = 50;
 	function processScores( data ) {
 		var i, score, className;
 		if ( data.error ) {
