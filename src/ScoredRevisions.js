@@ -18,6 +18,7 @@
 				$.inArray( conf.wgCanonicalSpecialPageName, [
 					'Watchlist',
 					'Recentchanges',
+					'Recentchangeslinked',
 					'Contributions'
 				] ) !== -1 ||
 				conf.wgAction === 'history'
@@ -64,7 +65,8 @@
 			ids = {},
 			pageids = {},
 			isChangesList = conf.wgCanonicalSpecialPageName === 'Watchlist' ||
-				conf.wgCanonicalSpecialPageName === 'Recentchanges',
+				conf.wgCanonicalSpecialPageName === 'Recentchanges' ||
+				conf.wgCanonicalSpecialPageName === 'Recentchangeslinked',
 			// This "usenewrc" can be the string "0" if the user disabled the preference ([[phab:T54542#555387]])
 			/*jshint eqeqeq:false*/
 			container = isChangesList ?
