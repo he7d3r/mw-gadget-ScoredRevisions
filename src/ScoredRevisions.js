@@ -76,11 +76,14 @@
 				conf.wgCanonicalSpecialPageName === 'Contributions' ?
 					'.mw-contributions-list':
 					'#pagehistory',
-			rowElement = mw.user.options.get( 'usenewrc' ) == 1 && isChangesList ?
+			rowSelector = mw.user.options.get( 'usenewrc' ) == 1 && isChangesList ?
 				'tr':
-				'li' ;
+				'li',
+			linkSelector = conf.wgCanonicalSpecialPageName === 'Contributions' ?
+				'a.mw-changeslist-date':
+				'a';
 		$( container )
-			.find( rowElement )
+			.find( rowSelector )
 			.each( function () {
 				var $row = $( this ),
 					id, pageid;
@@ -88,11 +91,11 @@
 					// Skip external edits from Wikidata
 					return false;
 				}
-				$row.find( 'a' )
+				$row.find( linkSelector )
 					.each( function () {
 						var href = $( this ).attr( 'href' );
 						id = mw.util.getParamValue( 'diff', href );
-						if ( id === 'prev' ) {
+						if ( id === 'prev' || conf.wgCanonicalSpecialPageName === 'Contributions' ) {
 							id = mw.util.getParamValue( 'oldid', href );
 						}
 						if ( id && /^([1-9]\d*)$/.test( id ) ) {
@@ -117,6 +120,8 @@
 				format: 'json',
 				action: 'query',
 				prop: 'revisions',
+				// FIXME: the API does not allow using this with multiple pageids
+				// rvdir: 'newer',
 				rvprop: 'ids',
 				pageids: Object.keys( pageids ).join( '|' )
 			} )
@@ -124,8 +129,10 @@
 				if ( data && data.query && data.query.pages ) {
 					$.each( data.query.pages, function( pageid, page ) {
 						var id = page.revisions[0].revid;
-						changes[ id ] = pageids[ pageid ];
-						ids[ id ] = true;
+						if ( !changes[ id ] ) {
+							changes[ id ] = pageids[ pageid ];
+							ids[ id ] = true;
+						}
 					} );
 				}
 			} )
