@@ -79,7 +79,8 @@
 			rowSelector = mw.user.options.get( 'usenewrc' ) == 1 && isChangesList ?
 				'tr':
 				'li',
-			linkSelector = conf.wgCanonicalSpecialPageName === 'Contributions' ?
+			linkSelector = conf.wgCanonicalSpecialPageName === 'Contributions' ||
+				conf.wgAction === 'history' ?
 				'a.mw-changeslist-date':
 				'a';
 		$( container )
@@ -95,7 +96,8 @@
 					.each( function () {
 						var href = $( this ).attr( 'href' );
 						id = mw.util.getParamValue( 'diff', href );
-						if ( id === 'prev' || conf.wgCanonicalSpecialPageName === 'Contributions' ) {
+						if ( id === 'prev' || conf.wgCanonicalSpecialPageName === 'Contributions' ||
+							conf.wgAction === 'history' ) {
 							id = mw.util.getParamValue( 'oldid', href );
 						}
 						if ( id && /^([1-9]\d*)$/.test( id ) ) {
@@ -194,7 +196,7 @@
 				return;
 			}
 			getRevIdsFromCurrentPage()
-			.done( function ( idsFromPage ){
+			.done( function ( idsFromPage ) {
 				ids = idsFromPage;
 				if ( ids.length ) {
 					scoreBatch( ids.slice( i, i + batchSize ), model );
