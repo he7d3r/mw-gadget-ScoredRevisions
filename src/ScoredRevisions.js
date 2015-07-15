@@ -12,8 +12,10 @@
 			'wgCanonicalSpecialPageName',
 			'wgDBname',
 			'wgAction',
-			'ScoredRevisionsThresholds'
+			'ScoredRevisionsThresholds',
+			'ScoredRevisionsServerUrl'
 		] ),
+		serverUrl = conf.ScoredRevisionsServerUrl || '//ores.wmflabs.org/scores/',
 		enabledOnCurrentPage = showScores && (
 				$.inArray( conf.wgCanonicalSpecialPageName, [
 					'Watchlist',
@@ -137,7 +139,7 @@
 	function getAvailableModels() {
 		var dfd = $.Deferred();
 		$.ajax( {
-			url: '//ores.wmflabs.org/scores/' + conf.wgDBname + '/',
+			url: serverUrl + conf.wgDBname + '/',
 			dataType: 'jsonp'
 		} )
 		.done( function ( data ) {
@@ -156,7 +158,7 @@
 		var i = 0,
 			scoreBatch = function ( revids, model ) {
 				$.ajax( {
-					url: '//ores.wmflabs.org/scores/' + conf.wgDBname + '/',
+					url: serverUrl + conf.wgDBname + '/',
 					data: {
 						models: model,
 						revids: revids.join( '|' )
