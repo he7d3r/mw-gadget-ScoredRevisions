@@ -9,6 +9,7 @@
 	var showScores = mw.util.getParamValue( 'showscores' ) !== '0',
 		model = 'reverted',
 		conf = mw.config.get( [
+			'wgIsArticle',
 			'wgCanonicalSpecialPageName',
 			'wgDBname',
 			'wgAction',
@@ -23,7 +24,8 @@
 					'Recentchangeslinked',
 					'Contributions'
 				] ) !== -1 ||
-				conf.wgAction === 'history'
+				conf.wgAction === 'history' ||
+				( conf.wgIsArticle && conf.wgAction === 'view' )
 			),
         ids = [],
         changes = {},
@@ -83,6 +85,10 @@
 				conf.wgAction === 'history' ?
 				'a.mw-changeslist-date':
 				'a';
+		if ( conf.wgIsArticle && conf.wgAction === 'view' ) {
+			changes[ mw.config.get( 'wgRevisionId' ) ] = $( '#ca-history' );
+			return dfd.resolve( [ mw.config.get( 'wgRevisionId' ) ] ).promise();
+		}
 		$( container )
 			.find( rowSelector )
 			.each( function () {
