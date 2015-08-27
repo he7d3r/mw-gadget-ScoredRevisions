@@ -17,19 +17,19 @@
 	background: #ffe099;
 }
 
-#ca-history.sr-revert-high a,
-#ca-history.sr-revert-medium a,
-#ca-history.sr-revert-low a {
+#ca-history a.sr-revert-high,
+#ca-history a.sr-revert-medium,
+#ca-history a.sr-revert-low {
 	background-position: left center;
 	background-repeat: no-repeat;
 	padding-left: 1.2em;
 }
-#ca-history.sr-revert-high a {
+#ca-history a.sr-revert-high {
 	background-image: url(https://upload.wikimedia.org/wikipedia/commons/2/2b/Icons-mini-flag_red.gif);
 }
-#ca-history.sr-revert-medium a {
+#ca-history a.sr-revert-medium {
 	background-image: url(https://upload.wikimedia.org/wikipedia/commons/f/ff/Icons-mini-flag_orange.gif);
 }
-#ca-history.sr-revert-low a {
+#ca-history a.sr-revert-low {
 	background-image: url(https://upload.wikimedia.org/wikipedia/commons/0/04/Icons-mini-flag_white.gif);
 }
