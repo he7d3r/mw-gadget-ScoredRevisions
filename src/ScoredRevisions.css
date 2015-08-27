@@ -2,17 +2,34 @@
 .mw-contributions-list li.sr-revert-high,
 .mw-changeslist li.sr-revert-high,
 .mw-changeslist tr.sr-revert-high {
-    background: #f4908a;
+	background: #f4908a;
 }
 #pagehistory li.sr-revert-medium,
 .mw-contributions-list li.sr-revert-medium,
 .mw-changeslist li.sr-revert-medium,
 .mw-changeslist tr.sr-revert-medium {
-    background: #ffbe99;
+	background: #ffbe99;
 }
 #pagehistory li.sr-revert-low,
 .mw-contributions-list li.sr-revert-low,
 .mw-changeslist li.sr-revert-low,
 .mw-changeslist tr.sr-revert-low {
-    background: #ffe099;
+	background: #ffe099;
+}
+
+#ca-history.sr-revert-high a,
+#ca-history.sr-revert-medium a,
+#ca-history.sr-revert-low a {
+	background-position: left center;
+	background-repeat: no-repeat;
+	padding-left: 1.2em;
+}
+#ca-history.sr-revert-high a {
+	background-image: url(https://upload.wikimedia.org/wikipedia/commons/2/2b/Icons-mini-flag_red.gif);
+}
+#ca-history.sr-revert-medium a {
+	background-image: url(https://upload.wikimedia.org/wikipedia/commons/f/ff/Icons-mini-flag_orange.gif);
+}
+#ca-history.sr-revert-low a {
+	background-image: url(https://upload.wikimedia.org/wikipedia/commons/0/04/Icons-mini-flag_white.gif);
 }

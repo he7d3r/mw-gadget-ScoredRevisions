@@ -86,7 +86,7 @@
 				'a.mw-changeslist-date':
 				'a';
 		if ( conf.wgIsArticle && conf.wgAction === 'view' ) {
-			changes[ mw.config.get( 'wgRevisionId' ) ] = $( '#ca-history' );
+			changes[ mw.config.get( 'wgRevisionId' ) ] = $( '#ca-history a' );
 			return dfd.resolve( [ mw.config.get( 'wgRevisionId' ) ] ).promise();
 		}
 		$( container )
