@@ -7,7 +7,8 @@
 	'use strict';
 
 	var showScores = mw.util.getParamValue( 'showscores' ) !== '0',
-		model = 'reverted',
+		models,
+		chosenModels = [ 'damaging', 'reverted' ],
 		conf = mw.config.get( [
 			'wgIsArticle',
 			'wgCurRevisionId',
@@ -38,30 +39,38 @@
 			},
 		batchSize = 50;
 	function processScores( data ) {
-		var i, score, className;
+		var i, m, score, scoreData, scoreTitles, classes;
 		if ( data.error ) {
 			mw.log.error( data.error );
 			return;
 		}
 		for ( i = 0; i < ids.length; i++ ) {
-			score = data[ ids[i] ];
-			if ( !score || score.error || score[ model ].error ) {
-				continue;
-			} else {
-				score = score[ model ].probability['true'];
+			classes = [];
+			scoreTitles = [];
+			scoreData = data[ ids[i] ];
+			for ( m = 0; m < models.length; m++ ) {
+				if ( !scoreData || scoreData.error || scoreData[ models[m] ].error ) {
+					continue;
+				} else {
+					score = scoreData[ models[m] ].probability['true'];
+				}
+				scoreTitles.push( ( 100 * score ).toFixed(0) + '% ' + models[m] );
+				// Allow users to customize the style (colors, icons, hide, etc) using classes
+				// 'sr-reverted-high', 'sr-reverted-medium', 'sr-reverted-low' and 'sr-reverted-none'
+				// 'sr-damaging-high', 'sr-damaging-medium', 'sr-damaging-low' and 'sr-damaging-none'
+				classes.push(
+					score >= thresholds.high ?
+						'sr-' + models[m] + '-high' :
+						score >= thresholds.medium ?
+							'sr-' + models[m] + '-medium' :
+							score >= thresholds.low ?
+								'sr-' + models[m] + '-low' :
+								'sr-' + models[m] + '-none'
+				);
 			}
-			// Allow users to customize the style (colors, icons, hide, etc) using classes
-			// 'sr-revert-high', 'sr-revert-medium', 'sr-revert-low' and 'sr-revert-none'
-			className = score >= thresholds.high ?
-				'sr-revert-high' :
-				score >= thresholds.medium ?
-					'sr-revert-medium' :
-					score >= thresholds.low ?
-						'sr-revert-low' :
-						'sr-revert-none';
 			changes[ ids[i] ]
-				.addClass( className )
-				.attr( 'title', 'Revert score: ' + ( 100 * score ).toFixed(0) + ' %' );
+				.addClass( classes.join( ' ' ) )
+				.attr( 'title', 'Scores: ' + scoreTitles.join( '; ' ) );
 		}
 	}
 
@@ -172,11 +181,11 @@
 
 	function load() {
 		var i = 0,
-			scoreBatch = function ( revids, model ) {
+			scoreBatch = function ( revids, models ) {
 				$.ajax( {
 					url: serverUrl + conf.wgDBname + '/',
 					data: {
-						models: model,
+						models: models.join( '|' ),
 						revids: revids.join( '|' )
 					},
 					dataType: 'jsonp'
@@ -185,7 +194,7 @@
 					processScores( data );
 					i += batchSize;
 					if ( i < ids.length ) {
-						scoreBatch( ids.slice( i, i + batchSize ), model );
+						scoreBatch( ids.slice( i, i + batchSize ), models );
 					}
 				} )
 				.fail( function () {
@@ -194,19 +203,22 @@
 			};
 		mw.loader.load( '//meta.wikimedia.org/w/index.php?title=User:He7d3r/Tools/ScoredRevisions.css&action=raw&ctype=text/css', 'text/css' );
 		getAvailableModels()
-		.done( function ( models ) {
-			if ( $.inArray( model,  models ) === -1 ) {
+		.done( function ( availableModels ) {
+			models = $.map( chosenModels, function( m ){
+				return $.inArray( m, availableModels ) < 0 ? null : m;
+			} );
+			if ( models.length === 0 ) {
 				mw.log.warn(
-					'ORES does not have a "' + model + '" model for this wiki.\n' +
+					'ORES does not have any of the chosen models (' +
+					 chosenModels.join( ', ' ) + ') for this wiki.\n' +
 					'More information at https://meta.wikimedia.org/wiki/ORES'
 				);
-				return;
 			}
 			getRevIdsFromCurrentPage()
 			.done( function ( idsFromPage ) {
 				ids = idsFromPage;
 				if ( ids.length ) {
-					scoreBatch( ids.slice( i, i + batchSize ), model );
+					scoreBatch( ids.slice( i, i + batchSize ), models );
 				}
 			} );
 		} )
