@@ -18,12 +18,12 @@ This will import the minified copy of the script I maintain on Meta-wiki.
 
 Customization
 ===========================
-The script adds one of 4 classes (`sr-revert-high`, `sr-revert-medium`, `sr-revert-low` or `sr-revert-none`) depending on the predicted probability of revert, so that the default style from ScoredRevisions.css (which just changes the background color for now) can be changed using CSS. You can copy ScoredRevisions.css as a start point, and play with the styles as you like.
+The script adds one of 4 classes (`sr-reverted-high`, `sr-reverted-medium`, `sr-reverted-low` or `sr-reverted-none`) depending on the predicted probability of being reverted, so that the default style from ScoredRevisions.css (which just changes the background color for now) can be changed using CSS. You can copy ScoredRevisions.css as a start point, and play with the styles as you like.
 
 Here is an example which adds an icon to the left of the edits which have low probability of being reverted:
 
 ```css
-revert-low {
+reverted-low {
     background: #FFE099;
     background-image: url("https://upload.wikimedia.org/wikipedia/commons/9/90/Icons-mini-icon_alert.gif");
     background-repeat: no-repeat;
