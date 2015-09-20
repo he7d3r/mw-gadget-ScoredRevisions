@@ -29,7 +29,7 @@
 				conf.wgAction === 'history' ||
 				( conf.wgIsArticle && conf.wgAction === 'view' )
 			),
-        ids = [],
+        idsOnPage = [],
         changes = {},
 		thresholds = conf.ScoredRevisionsThresholds ||
 			{
@@ -39,15 +39,17 @@
 			},
 		batchSize = 50;
 	function processScores( data ) {
-		var i, m, score, scoreData, scoreTitles, classes;
+		var i, revid, m, score, scoreData, scoreTitles, classes,
+			idsWithScores = Object.keys( data );
 		if ( data.error ) {
 			mw.log.error( data.error );
 			return;
 		}
-		for ( i = 0; i < ids.length; i++ ) {
+		for ( i = 0; i < idsWithScores.length; i++ ) {
+			revid = idsWithScores[i];
 			classes = [];
 			scoreTitles = [];
-			scoreData = data[ ids[i] ];
+			scoreData = data[ revid ];
 			for ( m = 0; m < models.length; m++ ) {
 				if ( !scoreData || scoreData.error || scoreData[ models[m] ].error ) {
 					continue;
@@ -68,7 +70,7 @@
 								'sr-' + models[m] + '-none'
 				);
 			}
-			changes[ ids[i] ]
+			changes[ revid ]
 				.addClass( classes.join( ' ' ) )
 				.attr( 'title', 'Scores: ' + scoreTitles.join( '; ' ) );
 		}
@@ -76,7 +78,7 @@
 
 	function getRevIdsFromCurrentPage() {
 		var dfd = $.Deferred(),
-			ids = {},
+			idsFound = {},
 			pageids = {},
 			isChangesList = conf.wgCanonicalSpecialPageName === 'Watchlist' ||
 				conf.wgCanonicalSpecialPageName === 'Recentchanges' ||
@@ -126,13 +128,13 @@
 				// use id or pageid
 				if ( id ) {
 					changes[ id ] = $row;
-					ids[ id ] = true;
+					idsFound[ id ] = true;
 				} else if ( pageid ) {
 					pageids[ pageid ] = $row;
 				}
 			} );
 		if ( $.isEmptyObject( pageids ) ) {
-			dfd.resolve( Object.keys( ids ) );
+			dfd.resolve( Object.keys( idsFound ) );
 		} else {
 			$.getJSON( mw.util.wikiScript( 'api' ), {
 				format: 'json',
@@ -149,13 +151,13 @@
 						var id = page.revisions[0].revid;
 						if ( !changes[ id ] ) {
 							changes[ id ] = pageids[ pageid ];
-							ids[ id ] = true;
+							idsFound[ id ] = true;
 						}
 					} );
 				}
 			} )
 			.always( function () {
-				dfd.resolve( Object.keys( ids ) );
+				dfd.resolve( Object.keys( idsFound ) );
 			} );
 		}
 		return dfd.promise();
@@ -181,20 +183,20 @@
 
 	function load() {
 		var i = 0,
-			scoreBatch = function ( revids, models ) {
+			scoreBatch = function ( idsOnBatch, models ) {
 				$.ajax( {
 					url: serverUrl + conf.wgDBname + '/',
 					data: {
 						models: models.join( '|' ),
-						revids: revids.join( '|' )
+						revids: idsOnBatch.join( '|' )
 					},
 					dataType: 'jsonp'
 				} )
 				.done( function ( data ) {
 					processScores( data );
 					i += batchSize;
-					if ( i < ids.length ) {
-						scoreBatch( ids.slice( i, i + batchSize ), models );
+					if ( i < idsOnPage.length ) {
+						scoreBatch( idsOnPage.slice( i, i + batchSize ), models );
 					}
 				} )
 				.fail( function () {
@@ -216,9 +218,9 @@
 			}
 			getRevIdsFromCurrentPage()
 			.done( function ( idsFromPage ) {
-				ids = idsFromPage;
-				if ( ids.length ) {
-					scoreBatch( ids.slice( i, i + batchSize ), models );
+				idsOnPage = idsFromPage;
+				if ( idsOnPage.length ) {
+					scoreBatch( idsOnPage.slice( i, i + batchSize ), models );
 				}
 			} );
 		} )
