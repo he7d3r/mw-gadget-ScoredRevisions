@@ -1,5 +1,6 @@
 /**
  * Highlight revisions by their scores
+ *
  * @author: Helder (https://github.com/he7d3r)
  * @license: CC BY-SA 3.0 <https://creativecommons.org/licenses/by-sa/3.0/>
  */
@@ -88,14 +89,14 @@
 			container = isChangesList ?
 				'.mw-changeslist' :
 				conf.wgCanonicalSpecialPageName === 'Contributions' ?
-					'.mw-contributions-list':
+					'.mw-contributions-list' :
 					'#pagehistory',
 			rowSelector = mw.user.options.get( 'usenewrc' ) == 1 && isChangesList ?
-				'tr':
+				'tr' :
 				'li',
 			linkSelector = conf.wgCanonicalSpecialPageName === 'Contributions' ||
 				conf.wgAction === 'history' ?
-				'a.mw-changeslist-date':
+				'a.mw-changeslist-date' :
 				'a';
 		if ( conf.wgIsArticle && conf.wgAction === 'view' ) {
 			changes[ conf.wgCurRevisionId ] = $( '#ca-history a' );
@@ -147,7 +148,7 @@
 			} )
 			.done( function ( data ) {
 				if ( data && data.query && data.query.pages ) {
-					$.each( data.query.pages, function( pageid, page ) {
+					$.each( data.query.pages, function ( pageid, page ) {
 						var id = page.revisions[0].revid;
 						if ( !changes[ id ] ) {
 							changes[ id ] = pageids[ pageid ];
@@ -175,7 +176,7 @@
 				dfd.reject();
 				return;
 			}
-			dfd.resolve( data.models || [] );
+			dfd.resolve( Object.keys( data.models ) || [] );
 		} )
 		.fail( dfd.reject );
 		return dfd.promise();
@@ -206,13 +207,13 @@
 		mw.loader.load( '//meta.wikimedia.org/w/index.php?title=User:He7d3r/Tools/ScoredRevisions.css&action=raw&ctype=text/css', 'text/css' );
 		getAvailableModels()
 		.done( function ( availableModels ) {
-			models = $.map( chosenModels, function( m ){
+			models = $.map( chosenModels, function ( m ) {
 				return $.inArray( m, availableModels ) < 0 ? null : m;
 			} );
 			if ( models.length === 0 ) {
 				mw.log.warn(
 					'ORES does not have any of the chosen models (' +
-					 chosenModels.join( ', ' ) + ') for this wiki.\n' +
+					chosenModels.join( ', ' ) + ') for this wiki.\n' +
 					'More information at https://meta.wikimedia.org/wiki/ORES'
 				);
 			}
@@ -225,7 +226,7 @@
 			} );
 		} )
 		.fail( function ( data ) {
-				mw.log.error( data );
+			mw.log.error( data );
 		} );
 	}
 
