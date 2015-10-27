@@ -47,28 +47,28 @@
 			return;
 		}
 		for ( i = 0; i < idsWithScores.length; i++ ) {
-			revid = idsWithScores[i];
+			revid = idsWithScores[ i ];
 			classes = [];
 			scoreTitles = [];
 			scoreData = data[ revid ];
 			for ( m = 0; m < models.length; m++ ) {
-				if ( !scoreData || scoreData.error || scoreData[ models[m] ].error ) {
+				if ( !scoreData || scoreData.error || scoreData[ models[ m ] ].error ) {
 					continue;
 				} else {
-					score = scoreData[ models[m] ].probability['true'];
+					score = scoreData[ models[ m ] ].probability[ 'true' ];
 				}
-				scoreTitles.push( ( 100 * score ).toFixed(0) + '% ' + models[m] );
+				scoreTitles.push( ( 100 * score ).toFixed( 0 ) + '% ' + models[ m ] );
 				// Allow users to customize the style (colors, icons, hide, etc) using classes
 				// 'sr-reverted-high', 'sr-reverted-medium', 'sr-reverted-low' and 'sr-reverted-none'
 				// 'sr-damaging-high', 'sr-damaging-medium', 'sr-damaging-low' and 'sr-damaging-none'
 				classes.push(
 					score >= thresholds.high ?
-						'sr-' + models[m] + '-high' :
+						'sr-' + models[ m ] + '-high' :
 						score >= thresholds.medium ?
-							'sr-' + models[m] + '-medium' :
+							'sr-' + models[ m ] + '-medium' :
 							score >= thresholds.low ?
-								'sr-' + models[m] + '-low' :
-								'sr-' + models[m] + '-none'
+								'sr-' + models[ m ] + '-low' :
+								'sr-' + models[ m ] + '-none'
 				);
 			}
 			changes[ revid ]
@@ -149,7 +149,7 @@
 			.done( function ( data ) {
 				if ( data && data.query && data.query.pages ) {
 					$.each( data.query.pages, function ( pageid, page ) {
-						var id = page.revisions[0].revid;
+						var id = page.revisions[ 0 ].revid;
 						if ( !changes[ id ] ) {
 							changes[ id ] = pageids[ pageid ];
 							idsFound[ id ] = true;
