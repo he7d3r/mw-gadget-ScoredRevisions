@@ -168,7 +168,7 @@
 		var dfd = $.Deferred();
 		$.ajax( {
 			url: serverUrl + conf.wgDBname + '/',
-			dataType: 'jsonp'
+			dataType: 'json'
 		} )
 		.done( function ( data ) {
 			if ( data.error ) {
@@ -191,7 +191,7 @@
 						models: models.join( '|' ),
 						revids: idsOnBatch.join( '|' )
 					},
-					dataType: 'jsonp'
+					dataType: 'json'
 				} )
 				.done( function ( data ) {
 					processScores( data );
