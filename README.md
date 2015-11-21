@@ -27,7 +27,10 @@ Which class is added depends on the predicted probability for the corresponding 
 Here is an example which adds an icon to the left of the edits which have low probability of being reverted:
 
 ```css
-damaging-low {
+#pagehistory li.sr-damaging-low,
+.mw-contributions-list li.sr-damaging-low,
+.mw-changeslist li.sr-damaging-low,
+.mw-changeslist tr.sr-damaging-low {
     background: #FFE099;
     background-image: url("https://upload.wikimedia.org/wikipedia/commons/9/90/Icons-mini-icon_alert.gif");
     background-repeat: no-repeat;
