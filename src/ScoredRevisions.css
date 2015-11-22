@@ -1,53 +1,44 @@
+.sr-reverted-high,
+.sr-damaging-high,
+/* Same specificity as "#pagehistory li.selected", from resources/src/mediawiki.legacy/shared.css */
 #pagehistory li.sr-reverted-high,
-.mw-contributions-list li.sr-reverted-high,
-.mw-changeslist li.sr-reverted-high,
-.mw-changeslist tr.sr-reverted-high,
-#pagehistory li.sr-damaging-high,
-.mw-contributions-list li.sr-damaging-high,
-.mw-changeslist li.sr-damaging-high,
-.mw-changeslist tr.sr-damaging-high {
+#pagehistory li.sr-damaging-high {
 	background: #f4908a;
 }
+.sr-reverted-medium,
+.sr-damaging-medium,
+/* Same specificity as "#pagehistory li.selected", from resources/src/mediawiki.legacy/shared.css */
 #pagehistory li.sr-reverted-medium,
-.mw-contributions-list li.sr-reverted-medium,
-.mw-changeslist li.sr-reverted-medium,
-.mw-changeslist tr.sr-reverted-medium,
-#pagehistory li.sr-damaging-medium,
-.mw-contributions-list li.sr-damaging-medium,
-.mw-changeslist li.sr-damaging-medium,
-.mw-changeslist tr.sr-damaging-medium {
+#pagehistory li.sr-damaging-medium  {
 	background: #ffbe99;
 }
+.sr-reverted-low,
+.sr-damaging-low,
+/* Same specificity as "#pagehistory li.selected", from resources/src/mediawiki.legacy/shared.css */
 #pagehistory li.sr-reverted-low,
-.mw-contributions-list li.sr-reverted-low,
-.mw-changeslist li.sr-reverted-low,
-.mw-changeslist tr.sr-reverted-low,
-#pagehistory li.sr-damaging-low,
-.mw-contributions-list li.sr-damaging-low,
-.mw-changeslist li.sr-damaging-low,
-.mw-changeslist tr.sr-damaging-low {
+#pagehistory li.sr-damaging-low  {
 	background: #ffe099;
 }
 
-#ca-history a.sr-reverted-high,
-#ca-history a.sr-reverted-medium,
-#ca-history a.sr-reverted-low,
-#ca-history a.sr-damaging-high,
-#ca-history a.sr-damaging-medium,
-#ca-history a.sr-damaging-low {
+#ca-history .sr-reverted-high,
+#ca-history .sr-reverted-medium,
+#ca-history .sr-reverted-low,
+#ca-history .sr-damaging-high,
+#ca-history .sr-damaging-medium,
+#ca-history .sr-damaging-low {
 	background-position: left center;
 	background-repeat: no-repeat;
 	padding-left: 1.2em;
 }
-#ca-history a.sr-reverted-high,
-#ca-history a.sr-damaging-high {
+#ca-history .sr-reverted-high,
+#ca-history .sr-damaging-high {
 	background-image: url(https://upload.wikimedia.org/wikipedia/commons/2/2b/Icons-mini-flag_red.gif);
 }
-#ca-history a.sr-reverted-medium,
-#ca-history a.sr-damaging-medium {
+#ca-history .sr-reverted-medium,
+#ca-history .sr-damaging-medium {
 	background-image: url(https://upload.wikimedia.org/wikipedia/commons/f/ff/Icons-mini-flag_orange.gif);
 }
-#ca-history a.sr-reverted-low,
-#ca-history a.sr-damaging-low {
+#ca-history .sr-reverted-low,
+#ca-history .sr-damaging-low {
 	background-image: url(https://upload.wikimedia.org/wikipedia/commons/0/04/Icons-mini-flag_white.gif);
 }
