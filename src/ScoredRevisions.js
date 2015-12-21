@@ -17,7 +17,8 @@
 			'wgDBname',
 			'wgAction',
 			'ScoredRevisionsThresholds',
-			'ScoredRevisionsServerUrl'
+			'ScoredRevisionsServerUrl',
+			'ScoredRevisionsEnableForPatrolledRevs'
 		] ),
 		serverUrl = conf.ScoredRevisionsServerUrl || '//ores.wmflabs.org/scores/',
 		enabledOnCurrentPage = showScores && (
@@ -97,20 +98,32 @@
 			linkSelector = conf.wgCanonicalSpecialPageName === 'Contributions' ||
 				conf.wgAction === 'history' ?
 				'a.mw-changeslist-date' :
-				'a';
+				'a',
+			filterPatrolled = $( '.unpatrolled' ).length
+				&& !conf.ScoredRevisionsEnableForPatrolledRevs;
+
 		if ( conf.wgIsArticle && conf.wgAction === 'view' ) {
 			changes[ conf.wgCurRevisionId ] = $( '#ca-history a' );
 			return dfd.resolve( [ conf.wgCurRevisionId ] ).promise();
 		}
 		$( container )
 			.find( rowSelector )
-			.each( function () {
-				var $row = $( this ),
-					id, pageid;
+			.filter( function () {
+				var $row = $( this );
 				if ( $row.hasClass( 'wikibase-edit' ) ) {
 					// Skip external edits from Wikidata
 					return false;
 				}
+				if ( filterPatrolled && $row.has( '.unpatrolled' ).length === 0	) {
+					// skip patrolled edits
+					return false;
+				}
+				return true;
+			} )
+			.each( function () {
+				var $row = $( this ),
+					id, pageid;
+
 				$row.find( linkSelector )
 					.each( function () {
 						var href = $( this ).attr( 'href' );
