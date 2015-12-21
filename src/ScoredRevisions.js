@@ -85,13 +85,13 @@
 			isChangesList = conf.wgCanonicalSpecialPageName === 'Watchlist' ||
 				conf.wgCanonicalSpecialPageName === 'Recentchanges' ||
 				conf.wgCanonicalSpecialPageName === 'Recentchangeslinked',
-			// This "usenewrc" can be the string "0" if the user disabled the preference ([[phab:T54542#555387]])
 			/*jshint eqeqeq:false*/
 			container = isChangesList ?
 				'.mw-changeslist' :
 				conf.wgCanonicalSpecialPageName === 'Contributions' ?
 					'.mw-contributions-list' :
 					'#pagehistory',
+			// This "usenewrc" can be the string "0" if the user disabled the preference ([[phab:T54542#555387]])
 			rowSelector = mw.user.options.get( 'usenewrc' ) == 1 && isChangesList ?
 				'tr' :
 				'li',
@@ -114,7 +114,7 @@
 					// Skip external edits from Wikidata
 					return false;
 				}
-				if ( filterPatrolled && $row.has( '.unpatrolled' ).length === 0	) {
+				if ( filterPatrolled && !$row.has( '.unpatrolled' ).length ) {
 					// skip patrolled edits
 					return false;
 				}
@@ -223,7 +223,7 @@
 			models = $.map( chosenModels, function ( m ) {
 				return $.inArray( m, availableModels ) < 0 ? null : m;
 			} );
-			if ( models.length === 0 ) {
+			if ( !models.length ) {
 				mw.log.warn(
 					'ORES does not have any of the chosen models (' +
 					chosenModels.join( ', ' ) + ') for this wiki.\n' +
