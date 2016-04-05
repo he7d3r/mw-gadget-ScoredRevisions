@@ -35,9 +35,9 @@
         changes = {},
 		thresholds = conf.ScoredRevisionsThresholds ||
 			{
-				low: 0.8,
-				medium: 0.87,
-				high: 0.94
+				low: 0.45,
+				medium: 0.58,
+				high: 0.80
 			},
 		batchSize = 50;
 	function processScores( data ) {
