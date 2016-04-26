@@ -143,7 +143,7 @@
 				if ( id ) {
 					changes[ id ] = $row;
 					idsFound[ id ] = true;
-				} else if ( pageid ) {
+				} else if ( pageid && pageid !== '0') {
 					pageids[ pageid ] = $row;
 				}
 			} );
