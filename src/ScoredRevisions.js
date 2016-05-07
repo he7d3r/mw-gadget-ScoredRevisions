@@ -18,7 +18,7 @@
 			'wgAction',
 			'ScoredRevisionsThresholds',
 			'ScoredRevisionsServerUrl',
-			'ScoredRevisionsEnableForPatrolledRevs'
+			'ScoredRevisionsEnableForPatrolledRevs' // Currently broken
 		] ),
 		serverUrl = conf.ScoredRevisionsServerUrl || '//ores.wmflabs.org/scores/',
 		enabledOnCurrentPage = showScores && (
@@ -114,10 +114,12 @@
 					// Skip external edits from Wikidata
 					return false;
 				}
+				/* TODO: The following filter is not functional
 				if ( filterPatrolled && !$row.has( '.unpatrolled' ).length ) {
 					// skip patrolled edits
 					return false;
 				}
+				*/
 				return true;
 			} )
 			.each( function () {
