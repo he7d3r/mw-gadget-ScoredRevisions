@@ -20,7 +20,7 @@
 			'ScoredRevisionsServerUrl',
 			'ScoredRevisionsEnableForPatrolledRevs' // Currently broken
 		] ),
-		serverUrl = conf.ScoredRevisionsServerUrl || '//ores.wmflabs.org/scores/',
+		serverUrl = conf.ScoredRevisionsServerUrl || '//ores.wikimedia.org/scores/',
 		enabledOnCurrentPage = showScores && (
 				$.inArray( conf.wgCanonicalSpecialPageName, [
 					'Watchlist',
